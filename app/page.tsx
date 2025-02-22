@@ -1,24 +1,22 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Brain, Code, Users, Zap } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Brain, Code, Users, Zap } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen ">
       {/* Hero Section */}
-      <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-white">
-        <div className="container px-4 md:px-6">
-          <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
-            <div className="flex flex-col justify-center space-y-4">
+      <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-white ">
+        <div className="container px-4 md:px-6 ">
+          <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 xl:grid-cols-2 lg:pl-20 lg:pr-20 ">
+            <div className="flex flex-col justify-center space-y-4 ">
               <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
-                  Master AI Development with LEARN.AI
-                </h1>
+                <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">Master AI Development with LEARN.AI</h1>
                 <p className="max-w-[600px] text-gray-500 md:text-xl">
-                  Transform your career with our comprehensive AI programming training. Learn from industry experts and
-                  build real-world AI applications.
+                  Transform your career with our comprehensive AI programming training. Learn from industry experts and build real-world AI
+                  applications.
                 </p>
               </div>
               <div className="flex flex-col gap-2 min-[400px]:flex-row">
@@ -35,7 +33,7 @@ export default function Home() {
               </div>
             </div>
             <Image
-              src="https://sjc.microlink.io/M858Q7fuDwtYczZQF37Qd6PP4gva9MGLqmKSuMlMBwJo3vrG4MUo4ZiDWakE79hp0kwwVwhWssNTL-1qQR1ljA.jpeg"
+              src="/img.webp"
               alt="AI Learning Illustration"
               width={600}
               height={400}
@@ -61,10 +59,8 @@ export default function Home() {
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center space-y-2">
                   <Brain className="h-12 w-12 text-blue-600" />
-                  <h3 className="text-xl font-bold">Expert-Led Training</h3>
-                  <p className="text-center text-gray-500">
-                    Learn from industry professionals with real-world experience
-                  </p>
+                  <h3 className="text-xl font-bold">Expert-Led </h3>
+                  <p className="text-center text-gray-500">Learn from industry professionals</p>
                 </div>
               </CardContent>
             </Card>
@@ -81,8 +77,8 @@ export default function Home() {
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center space-y-2">
                   <Users className="h-12 w-12 text-blue-600" />
-                  <h3 className="text-xl font-bold">Community Support</h3>
-                  <p className="text-center text-gray-500">Join a network of AI developers and learners</p>
+                  <h3 className="text-xl font-bold">Community </h3>
+                  <p className="text-center text-gray-500">Join a network of AI developers </p>
                 </div>
               </CardContent>
             </Card>
@@ -104,12 +100,8 @@ export default function Home() {
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
-              <h2 className="text-3xl font-bold tracking-tighter text-white md:text-4xl">
-                Ready to Start Your AI Journey?
-              </h2>
-              <p className="max-w-[600px] text-white/80 md:text-xl">
-                Join our next cohort and transform your career with cutting-edge AI skills
-              </p>
+              <h2 className="text-3xl font-bold tracking-tighter text-white md:text-4xl">Ready to Start Your AI Journey?</h2>
+              <p className="max-w-[600px] text-white/80 md:text-xl">Join our next cohort and transform your career with cutting-edge AI skills</p>
             </div>
             <div className="flex flex-col gap-2 min-[400px]:flex-row">
               <Link href="/enrollment">
@@ -118,7 +110,7 @@ export default function Home() {
                 </Button>
               </Link>
               <Link href="/contact">
-                <Button size="lg" variant="outline" className="text-white border-white hover:bg-white/10">
+                <Button size="lg" variant="secondary">
                   Contact Us
                 </Button>
               </Link>
@@ -127,6 +119,5 @@ export default function Home() {
         </div>
       </section>
     </div>
-  )
+  );
 }
-

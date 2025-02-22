@@ -1,14 +1,14 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Brain, Facebook, Twitter, Linkedin, Instagram, Mail, Phone, MapPin } from "lucide-react"
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Brain, Facebook, Twitter, Linkedin, Instagram, Mail, Phone, MapPin } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="border-t bg-white">
+    <footer className="border-t bg-white ">
       <div className="container px-4 md:px-6">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 gap-8 py-8 md:grid-cols-4 lg:py-12">
+        <div className="grid grid-cols-1 gap-8 py-8 md:grid-cols-4 lg:py-12 lg:p-20 ">
           {/* Brand Section */}
           <div className="space-y-4">
             <Link href="/" className="flex items-center space-x-2">
@@ -87,9 +87,7 @@ export function Footer() {
           {/* Newsletter Signup */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Stay Updated</h3>
-            <p className="text-sm text-gray-500">
-              Subscribe to our newsletter for the latest AI insights and program updates.
-            </p>
+            <p className="text-sm text-gray-500">Subscribe to our newsletter for the latest AI insights and program updates.</p>
             <div className="flex space-x-2">
               <Input type="email" placeholder="Enter your email" className="max-w-[240px]" />
               <Button variant="outline">Subscribe</Button>
@@ -116,6 +114,5 @@ export function Footer() {
         </div>
       </div>
     </footer>
-  )
+  );
 }
-

@@ -1,17 +1,17 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Check } from "lucide-react"
-import { StripePaymentProvider } from "@/components/stripe-payment-provider"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Check } from "lucide-react";
+import { StripePaymentProvider } from "@/components/stripe-payment-provider";
 
 export default function EnrollmentPage() {
   const [selectedPlan, setSelectedPlan] = useState<{
-    name: string
-    price: number
-  } | null>(null)
+    name: string;
+    price: number;
+  } | null>(null);
 
   const plans = [
     {
@@ -54,7 +54,7 @@ export default function EnrollmentPage() {
         "12 Months Access",
       ],
     },
-  ]
+  ];
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -62,28 +62,20 @@ export default function EnrollmentPage() {
       <section className="w-full py-12 md:py-24 lg:py-32 bg-blue-600">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center space-y-4 text-center">
-            <h1 className="text-3xl font-bold tracking-tighter text-white sm:text-4xl md:text-5xl lg:text-6xl">
-              Enroll in LEARN.AI
-            </h1>
-            <p className="max-w-[700px] text-white/90 md:text-xl">
-              Choose the perfect learning path to kickstart your AI development career
-            </p>
+            <h1 className="text-3xl font-bold tracking-tighter text-white sm:text-4xl md:text-5xl lg:text-6xl">Enroll in LEARN.AI</h1>
+            <p className="max-w-[700px] text-white/90 md:text-xl">Choose the perfect learning path to kickstart your AI development career</p>
           </div>
         </div>
       </section>
 
       {/* Pricing Section */}
-      <section className="w-full py-12 md:py-24 lg:py-32 bg-white">
+      <section className="w-full py-12 md:py-24 lg:py-32 bg-white lg:pl-20 lg:pr-20">
         <div className="container px-4 md:px-6">
           <div className="grid gap-6 lg:grid-cols-3">
             {plans.map((plan) => (
               <Card key={plan.name} className={plan.popular ? "border-blue-600 shadow-lg" : ""}>
                 <CardHeader>
-                  {plan.popular && (
-                    <div className="inline-block rounded-full bg-blue-600 px-3 py-1 text-sm text-white mb-2">
-                      Most Popular
-                    </div>
-                  )}
+                  {plan.popular && <div className="inline-block rounded-full bg-blue-600 px-3 py-1 text-sm text-white mb-2">Most Popular</div>}
                   <CardTitle className="text-2xl">{plan.name}</CardTitle>
                   <CardDescription>{plan.description}</CardDescription>
                 </CardHeader>
@@ -127,6 +119,5 @@ export default function EnrollmentPage() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
-

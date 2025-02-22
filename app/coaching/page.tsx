@@ -56,7 +56,7 @@ export default function CoachingPage() {
         </div>
       </section>
       {/* Features Section */}
-      <section className="w-full py-12 md:py-24 lg:py-32 bg-white">
+      <section className="w-full py-12 md:py-24 lg:py-32 bg-white lg:pl-20 lg:pr-20">
         <div className="container px-4 md:px-6">
           <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-4">
             {features.map((feature, index) => (
@@ -75,7 +75,7 @@ export default function CoachingPage() {
       </section>
 
       {/* Program Overview */}
-      <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-50">
+      <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-50 lg:pl-20 lg:pr-20">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Program Overview</h2>
