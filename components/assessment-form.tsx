@@ -352,6 +352,19 @@ export default function AssessmentForm() {
             ))}
         </div>
       )}
+      {apiResponse && (
+        <Alert
+          className={`mt-4 p-4 ${
+            showGreen ? "bg-green-100 text-green-700 border-green-300" : "bg-red-100 text-red-700 border-red-300"
+          }  rounded-lg border shadow-md`}
+        >
+          <AlertDescription>
+            {showGreen
+              ? "Congratulations! You are eligible for the program. Please check your email for the next steps."
+              : "Sorry, you are not eligible for the program. Please check your email for further details."}
+          </AlertDescription>
+        </Alert>
+      )}
       <Button type="submit" disabled={loading} className="w-full">
         {loading ? (
           <div className="flex items-center space-x-2">
