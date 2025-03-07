@@ -1,46 +1,55 @@
 import { NextRequest, NextResponse } from "next/server";
 import { OpenAI } from "openai";
+import { sendEmail } from "./emailService";
+
+if (!process.env.OPENAI_API_KEY) {
+  throw new Error("❌ Missing OpenAI API Key. Please check your environment variables.");
+}
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, // Ensure you set this in your .env file
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    console.log("Received Payload:", body); // ✅ Debug: Logs incoming data
+    const { firstName, lastName, email, phoneNumber, currentOccupation, timeCommitment, reasons, investmentRange } = body;
 
-    const { firstName, lastName, email, phoneNumber, currentOccupation, timeCommitment, importance, reasons, investmentRange } = body;
-
-    // Constructing prompt dynamically
     const prompt = `
-      You are an AI assistant evaluating a user's eligibility for an AI training program from LEARNAI.
-      Analyze the user's input carefully and determine whether they qualify.
+    You are an AI admissions assistant for LEARNAI, evaluating applications for an AI training program. 
+    Your task is to assess eligibility based on strict criteria and return a **valid JSON response ONLY**.
+    
+    ---  
+    **Applicant Details:**  
+    - Full Name: ${firstName} ${lastName}  
+    - Email: ${email}  
+    - Phone: ${phoneNumber}  
+    - Occupation: ${currentOccupation}  
+    - Weekly Commitment: ${timeCommitment} hours  
+    - Reasons: ${reasons.join(", ")}  
+    - Investment Range: ${investmentRange}  
 
-      **User Details**:
-      - First Name: ${firstName}
-      - Last Name: ${lastName}
-      - Email: ${email}
-      - Phone Number: ${phoneNumber}
-      - Current Occupation: ${currentOccupation}
-      - Weekly Time Commitment: ${timeCommitment}
-      - Importance of Enrolling: ${importance}
-      - Reason for Enrolling: ${reasons.join(", ")}
-      - Investment Range: ${investmentRange}
+    ---  
+    **Eligibility Criteria:**  
+    1️⃣ Minimum **1 hour per week** commitment required.  
+    2️⃣ A valid **reason for enrolling** is required (not 'None').  
+    3️⃣ Must be **willing to invest at least $3,500**.  
 
-      **Eligibility Criteria**:
-      1. Must commit at least 1 hour per week.
-      2. Must rate enrollment importance as 2 or higher.
-      3. Must select a valid reason (not 'None').
-      4. Must be willing to invest at least $2,500.
+    ---  
+    **Response Format (STRICT JSON ONLY, NO EXTRA TEXT):**  
+    \`\`\`json
+    {
+      "subject": "Email Subject",
+      "message": "Professional response message",
+      "eligible": true or false
+    }
+    \`\`\`
 
-      **Response Rules**:
-      - If eligible: Congratulate the user and inform them about the meeting link via email.
-      - If not eligible: Politely reject with improvement suggestions and notify them about an ebook being sent to their email.
-      - Make a final decision with no requests for more details.
+    **Rules:**  
+    - ✅ If eligible: Congratulate them, explain why they qualified, and tell them to check their email for an onboarding meeting link.  
+    - ❌ If not eligible: Politely reject them, explain why, offer suggestions, and mention they will receive an **eBook** with improvement tips.  
+    - ❗ **Return JSON only, no explanations or extra text!**  
     `;
-
-    console.log("Constructed Prompt:", prompt); // ✅ Debug: Logs the AI input
 
     // Generate AI response
     const response = await openai.chat.completions.create({
@@ -49,14 +58,41 @@ export async function POST(req: NextRequest) {
       max_tokens: 300,
     });
 
-    console.log("AI Response:", response.choices[0]?.message?.content); // ✅ Debug: Logs AI response
+    // Validate response structure
+    if (!response.choices || response.choices.length === 0 || !response.choices[0].message?.content) {
+      throw new Error("Invalid response from OpenAI.");
+    }
+
+    const rawResponse = response.choices[0].message.content.trim();
+    console.log("🛠️ Raw AI Response:", rawResponse);
+
+    let aiResponse;
+    try {
+      // Extract JSON if AI includes extra text
+      const jsonMatch = rawResponse.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error("No valid JSON found in AI response.");
+
+      aiResponse = JSON.parse(jsonMatch[0]);
+
+      // Ensure required fields exist
+      if (!("subject" in aiResponse) || !("message" in aiResponse) || !("eligible" in aiResponse)) {
+        throw new Error("Incomplete JSON response from AI.");
+      }
+    } catch (parseError) {
+      console.error("🚨 JSON Parsing Error:", parseError, "Raw content:", rawResponse);
+      throw new Error("Failed to parse AI response. Check AI output format.");
+    }
+
+    // Send email
+    await sendEmail(email, aiResponse.subject, aiResponse.message, aiResponse.eligible);
 
     return NextResponse.json({
       success: true,
-      message: response.choices[0]?.message?.content || "No response generated.",
+      message: aiResponse.message || "No response generated.",
+      eligible: aiResponse.eligible ?? false,
     });
   } catch (error) {
-    console.error("Error:", error);
-    return NextResponse.json({ success: false, error: "Failed to process request." }, { status: 500 });
+    console.error("❌ Full Error Details:", error);
+    return NextResponse.json({ success: false, error: error instanceof Error ? error.message : "Failed to process request." }, { status: 500 });
   }
 }

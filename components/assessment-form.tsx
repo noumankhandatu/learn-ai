@@ -13,8 +13,8 @@ import axios from "axios";
 
 export default function AssessmentForm() {
   const [apiResponse, setApiResponse] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false); // New state for loading
-
+  const [loading, setLoading] = useState(false);
+  const [showGreen, setShowGreen] = useState(false);
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     firstName: "",
@@ -119,7 +119,7 @@ export default function AssessmentForm() {
 
       if (response.status === 200) {
         setApiResponse(response.data.message);
-
+        setShowGreen(response.data.eligible);
         toast({
           title: "Success!",
           description: response.data.message || "Your assessment has been submitted successfully.",
@@ -299,25 +299,26 @@ export default function AssessmentForm() {
         </div>
         <RadioGroup value={formData.investmentRange} onValueChange={(value) => handleRadioChange("investmentRange", value)} className="space-y-4">
           <div className="flex items-center space-x-2 border-red-500 border-[1px] p-3 rounded-lg">
-            <RadioGroupItem value="0-2500" id="range-1" className="mt-1" />
+            <RadioGroupItem value="0-3000" id="range-1" className="mt-1" />
             <Label htmlFor="range-1" className="font-normal">
-              <span className="block font-medium">$0 - $2,500</span>
+              <span className="block font-medium">$0 - $3,000</span>
               <span className="block mt-2 text-sm text-red-500">I do not value investing in myself to LEARN AI</span>
             </Label>
+            <span className="ml-2 text-sm text-muted-foreground text-right">(Below Investment Threshold)</span>
           </div>
           <div className="flex items-center space-x-2 border-blue-500 border-[1px] p-3 rounded-lg">
-            <RadioGroupItem value="2500-3000" id="range-2" className="mt-1" />
+            <RadioGroupItem value="3500-4500" id="range-2" className="mt-1" />
             <Label htmlFor="range-2" className="font-normal">
-              <span className="block font-medium">$2,500 - $3,000</span>
+              <span className="block font-medium">$3,500 - $4,500</span>
               <span className="block mt-2 text-sm text-blue-500">
                 I am ready to invest in myself to LEARN AI from a Valued AI Coach with real life experiences and over 10+ years of Experience
               </span>
             </Label>
           </div>
           <div className="flex items-center space-x-2 shadow-sm p-4  border-green-500 border-[1px] rounded-lg">
-            <RadioGroupItem value="3500+" id="range-3" className="mt-1" />
+            <RadioGroupItem value="5000+" id="range-3" className="mt-1" />
             <Label htmlFor="range-3" className="font-normal">
-              <span className="block font-medium">$3,500+</span>
+              <span className="block font-medium">$5,000+</span>
               <span className="block text-sm mt-2 text-green-500">
                 I am open to invest now and in future AI Coaching, mentorship, community, how to apply AI in my career, future career & use AI to
                 generate passive income
@@ -337,12 +338,18 @@ export default function AssessmentForm() {
         </AlertDescription>
       </Alert>
       {apiResponse && (
-        <div className="mt-4 p-4 bg-green-100 text-green-700 rounded-lg border border-green-300 shadow-md">
-          {apiResponse.split("\n").map((line, index) => (
-            <p key={index} className="mb-2 leading-relaxed">
-              {line}
-            </p>
-          ))}
+        <div
+          className={`mt-4 p-4 ${
+            showGreen ? "bg-green-100 text-green-700 border-green-300" : "bg-red-100 text-red-700 border-red-300"
+          }  rounded-lg border shadow-md`}
+        >
+          {apiResponse
+            .split(/(?<=[.!:?])\s+/) // Split sentences properly
+            .map((sentence, index) => (
+              <p key={index} className="mb-2 leading-relaxed">
+                {sentence.trim()}
+              </p>
+            ))}
         </div>
       )}
       <Button type="submit" disabled={loading} className="w-full">

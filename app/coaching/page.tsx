@@ -42,7 +42,7 @@ export default function CoachingPage() {
                   Start Assessment
                 </Button>
               </Link>
-              <Button variant="outline" size="lg" className="text-white border-white hover:bg-white/10">
+              <Button variant="outline" size="lg" className="text-black border-white hover:bg-white/10">
                 View Curriculum
               </Button>
             </div>
