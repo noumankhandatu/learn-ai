@@ -299,26 +299,26 @@ export default function AssessmentForm() {
         </div>
         <RadioGroup value={formData.investmentRange} onValueChange={(value) => handleRadioChange("investmentRange", value)} className="space-y-4">
           <div className="flex items-center space-x-2 border-red-500 border-[1px] p-3 rounded-lg">
-            <RadioGroupItem value="0-3000" id="range-1" className="mt-1" />
+            <RadioGroupItem value="0-3500" id="range-1" className="mt-1" />
             <Label htmlFor="range-1" className="font-normal">
-              <span className="block font-medium">$0 - $3,000</span>
+              <span className="block font-medium">$0 - $3,500</span>
               <span className="block mt-2 text-sm text-red-500">I do not value investing in myself to LEARN AI</span>
             </Label>
             <span className="ml-2 text-sm text-muted-foreground text-right">(Below Investment Threshold)</span>
           </div>
           <div className="flex items-center space-x-2 border-blue-500 border-[1px] p-3 rounded-lg">
-            <RadioGroupItem value="3500-4500" id="range-2" className="mt-1" />
+            <RadioGroupItem value="4000-5000" id="range-2" className="mt-1" />
             <Label htmlFor="range-2" className="font-normal">
-              <span className="block font-medium">$3,500 - $4,500</span>
+              <span className="block font-medium">$4,000 - $5,000</span>
               <span className="block mt-2 text-sm text-blue-500">
                 I am ready to invest in myself to LEARN AI from a Valued AI Coach with real life experiences and over 10+ years of Experience
               </span>
             </Label>
           </div>
           <div className="flex items-center space-x-2 shadow-sm p-4  border-green-500 border-[1px] rounded-lg">
-            <RadioGroupItem value="5000+" id="range-3" className="mt-1" />
+            <RadioGroupItem value="5500-6500" id="range-3" className="mt-1" />
             <Label htmlFor="range-3" className="font-normal">
-              <span className="block font-medium">$5,000+</span>
+              <span className="block font-medium">$5,500 - $6,500</span>
               <span className="block text-sm mt-2 text-green-500">
                 I am open to invest now and in future AI Coaching, mentorship, community, how to apply AI in my career, future career & use AI to
                 generate passive income
