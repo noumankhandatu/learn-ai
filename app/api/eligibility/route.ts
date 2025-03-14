@@ -16,39 +16,53 @@ export async function POST(req: NextRequest) {
     const { firstName, lastName, email, phoneNumber, currentOccupation, timeCommitment, reasons, investmentRange } = body;
 
     const prompt = `
-    You are an AI admissions assistant for LEARNAI, evaluating applications for an AI training program. 
-    Your task is to assess eligibility based on strict criteria and return a **valid JSON response ONLY**.
+    You are an AI admissions assistant for LEARNAI, evaluating applications for an AI training program.
+    Your task is to assess eligibility based on strict criteria and return **ONLY JSON output**.
     
-    ---  
-    **Applicant Details:**  
-    - Full Name: ${firstName} ${lastName}  
-    - Email: ${email}  
-    - Phone: ${phoneNumber}  
-    - Occupation: ${currentOccupation}  
-    - Weekly Commitment: ${timeCommitment} hours  
-    - Reasons: ${reasons.join(", ")}  
-    - Investment Range: ${investmentRange}  
-
-    ---  
-    **Eligibility Criteria:**  
-    1️⃣ Minimum **1 hour per week** commitment required.  
-    2️⃣ A valid **reason for enrolling** is required (not 'None').  
-    3️⃣ Must be **willing to invest at least $3,500**.  
-
-    ---  
-    **Response Format (STRICT JSON ONLY, NO EXTRA TEXT):**  
+    ---
+    **Applicant Details:**
+    - Full Name: ${firstName} ${lastName}
+    - Email: ${email}
+    - Phone: ${phoneNumber}
+    - Occupation: ${currentOccupation}
+    - Weekly Commitment: ${timeCommitment} hours
+    - Reasons: ${reasons.join(", ")}
+    - Investment Range: ${investmentRange}
+    
+    ---
+    **Eligibility Criteria:**
+    1️⃣ Minimum **1 hour per week** commitment required.
+    2️⃣ A valid **reason for enrolling** is required (not 'None').
+    3️⃣ Must be **willing to invest at least $4,000**.
+    
+    ---
+    **STRICT JSON Response Format (NO EXTRA TEXT OUTSIDE JSON)**:
     \`\`\`json
     {
       "subject": "Email Subject",
-      "message": "Professional response message",
+      "message": "Detailed, professional response message (at least 200 words)",
       "eligible": true or false
     }
     \`\`\`
-
-    **Rules:**  
-    - ✅ If eligible: Congratulate them, explain why they qualified, and tell them to check their email for an onboarding meeting link.  
-    - ❌ If not eligible: Politely reject them, explain why, offer suggestions, and mention they will receive an **eBook** with improvement tips.  
-    - ❗ **Return JSON only, no explanations or extra text!**  
+    
+    ---
+    ### **Message Guidelines**
+    - ✅ If eligible: 
+      - Congratulate the applicant and emphasize why they qualified.
+      - Clearly state that they should check their email for an **onboarding meeting link**.
+      - Provide a **motivational and engaging** response that encourages participation.
+    
+    - ❌ If not eligible:
+      - Politely reject them and explain the reasons.
+      - Offer actionable suggestions for improving their qualifications.
+      - Inform them that they will receive an **eBook** with improvement tips.
+      - Keep the tone **encouraging and constructive**.
+    
+    ---
+    🚨 **IMPORTANT RULES:**  
+    - **Return JSON ONLY.** No extra text, greetings, explanations, or additional formatting.
+    - **Ensure the message is at least 200 words** to provide a detailed response.
+    - **DO NOT include any text outside the JSON block.**
     `;
 
     // Generate AI response

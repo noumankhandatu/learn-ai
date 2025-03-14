@@ -360,7 +360,7 @@ export default function AssessmentForm() {
         >
           <AlertDescription>
             {showGreen
-              ? "Congratulations! You are eligible for the program. Please check your email for the next steps."
+              ? " You are eligible for the program. Please check your email for the next steps. 🎉"
               : "Sorry, you are not eligible for the program. Please check your email for further details."}
           </AlertDescription>
         </Alert>

@@ -16,7 +16,7 @@ export function MainNav() {
   const menuItems = [
     { href: "/", label: "Home" },
     { href: "/coaching", label: "Coaching Program" },
-    { href: "/enrollment", label: "Enrollment" },
+    // { href: "/enrollment", label: "Enrollment" },
     { href: "/about", label: "About Us" },
     { href: "/contact", label: "Contact" },
   ];
