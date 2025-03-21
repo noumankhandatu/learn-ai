@@ -19,6 +19,7 @@ export function MainNav() {
     // { href: "/enrollment", label: "Enrollment" },
     { href: "/about", label: "About Us" },
     { href: "/contact", label: "Contact" },
+    { href: "/faq", label: "FAQS" },
   ];
 
   return (
@@ -26,7 +27,7 @@ export function MainNav() {
       <div className="container flex h-16 items-center justify-between px-4 lg:px-20">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2">
-          <img src="/LEARNAI.png" alt="Logo" className="w-[120px]" />
+          <img src="/LEARNAI.png" alt="Logo" className="w-[160px]" />
         </Link>
 
         {/* Desktop Navigation */}
@@ -80,7 +81,9 @@ export function MainNav() {
         </div>
 
         {/* Enroll Button */}
-        <Button className="hidden md:block bg-blue-600 hover:bg-blue-700">Enroll Now</Button>
+        <Link href={"/coaching"}>
+          <Button className="hidden md:block bg-blue-600 hover:bg-blue-700">Enroll Now</Button>
+        </Link>
       </div>
     </header>
   );

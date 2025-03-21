@@ -12,8 +12,7 @@ export function Footer() {
           {/* Brand Section */}
           <div className="space-y-4">
             <Link href="/" className="flex items-center space-x-2">
-              <Brain className="h-6 w-6 text-blue-600" />
-              <span className="text-xl font-bold">LEARN.AI</span>
+              <img src="/LEARNAI.png" alt="Logo" className="w-[160px]" />
             </Link>
             <p className="text-sm text-gray-500">
               Empowering the next generation of AI developers through expert-led training and hands-on experience.

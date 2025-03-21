@@ -35,16 +35,17 @@ export default function CoachingPage() {
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center space-y-4 text-center">
             <h1 className="text-3xl font-bold tracking-tighter text-white sm:text-4xl md:text-5xl lg:text-6xl">AI Coaching Program</h1>
-            <p className="max-w-[700px] text-white/90 md:text-xl">Transform your career with personalized AI development coaching</p>
+            <p className="max-w-[700px] text-white/90 md:text-xl">
+              Transform your career with personalized AI development coaching. <br />
+              <span className="font-semibold text-white">Enroll now and start your AI journey today!</span>
+            </p>
+
             <div className="space-x-4">
               <Link href="#assessment">
                 <Button variant="secondary" size="lg">
-                  Start Assessment
+                  Enroll Now
                 </Button>
               </Link>
-              <Button variant="outline" size="lg" className="text-black border-white hover:bg-white/10">
-                View Curriculum
-              </Button>
             </div>
           </div>
         </div>

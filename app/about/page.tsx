@@ -1,3 +1,4 @@
+import AboutLearnAI from "@/components/sections/AboutLearnAI";
 import { Card, CardContent } from "@/components/ui/card";
 import { Award, BookOpen, Users, Star } from "lucide-react";
 import Image from "next/image";
@@ -36,14 +37,14 @@ export default function AboutPage() {
       <section className="w-full py-12 md:py-24 lg:py-32 bg-blue-600">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center space-y-4 text-center">
-            <h1 className="text-3xl font-bold tracking-tighter text-white sm:text-4xl md:text-5xl lg:text-6xl">About LEARN.AI</h1>
-            <p className="max-w-[700px] text-white/90 md:text-xl">
-              Empowering the next generation of AI developers through expert-led training and hands-on experience
-            </p>
+            <h1 className="text-3xl font-bold tracking-tighter text-white sm:text-4xl md:text-5xl lg:text-6xl">About LEARN AI</h1>
+            <p className="max-w-[700px] text-white/90 md:text-xl">Empowering professionals to master artificial intelligence </p>
           </div>
         </div>
       </section>
+      <div style={{ height: 20 }} />
 
+      <AboutLearnAI />
       {/* Stats Section */}
       <section className="w-full py-12 md:py-24 lg:py-32 bg-white lg:pl-20 lg:pr-20">
         <div className="container px-4 md:px-6">
@@ -81,7 +82,7 @@ export default function AboutPage() {
       </section>
 
       {/* Team Section */}
-      <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-50 lg:pl-20 lg:pr-20">
+      {/* <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-50 lg:pl-20 lg:pr-20">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Meet Our Expert Team</h2>
@@ -106,7 +107,7 @@ export default function AboutPage() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
     </div>
   );
 }
