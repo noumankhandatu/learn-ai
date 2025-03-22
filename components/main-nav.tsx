@@ -20,6 +20,7 @@ export function MainNav() {
     { href: "/about", label: "About Us" },
     { href: "/contact", label: "Contact" },
     { href: "/faq", label: "FAQS" },
+    { href: "/privacypolicy", label: "Privacy Policy" },
   ];
 
   return (
