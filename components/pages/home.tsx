@@ -30,7 +30,6 @@ export default function Home() {
                 <div style={{ height: 20 }} />
                 <p className="max-w-[600px] text-gray-500 md:text-xl">
                 Transform your career with our proven CLEAR methodology—no prior technical experience required. Unlock salaries of $199K+ and create lucrative passive income streams.
-                From overwhelmed to empowered. From curious to confident. From job seeker to high-earning AI leader.
                 </p>{" "}
                 <div style={{ height: 20 }} />
                 <i className="max-w-[600px] text-gray-500 md:text-lg">
@@ -53,7 +52,7 @@ export default function Home() {
               </div>
             </div>
             <Image
-              src="/main.png"
+              src="/glassdoor.png"
               alt="AI Learning Illustration"
               width={600}
               height={400}

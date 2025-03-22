@@ -15,7 +15,7 @@ export function Footer() {
               <img src="/LEARNAI.png" alt="Logo" className="w-[160px]" />
             </Link>
             <p className="text-sm text-gray-500">
-              Empowering the next generation of AI developers through expert-led training and hands-on experience.
+            Become an AI Product Manager. No Tech Background Needed..
             </p>
             <div className="flex space-x-4">
               <Link href="#" className="text-gray-500 hover:text-blue-600">
@@ -59,6 +59,11 @@ export function Footer() {
               <li>
                 <Link href="/contact" className="text-sm text-gray-500 hover:text-blue-600">
                   Contact
+                </Link>
+              </li>
+              <li>
+                <Link href="/privacypolicy" className="text-sm text-gray-500 hover:text-blue-600">
+                  Privacy Policy
                 </Link>
               </li>
             </ul>
