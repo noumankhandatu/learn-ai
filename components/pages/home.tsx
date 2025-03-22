@@ -29,8 +29,8 @@ export default function Home() {
                 </p>{" "}
                 <div style={{ height: 20 }} />
                 <p className="max-w-[600px] text-gray-500 md:text-xl">
-                  Transform your career with our comprehensive AI programming training. Learn from industry experts and build real-world AI
-                  applications.
+                Transform your career with our proven CLEAR methodology—no prior technical experience required. Unlock salaries of $199K+ and create lucrative passive income streams.
+                From overwhelmed to empowered. From curious to confident. From job seeker to high-earning AI leader.
                 </p>{" "}
                 <div style={{ height: 20 }} />
                 <i className="max-w-[600px] text-gray-500 md:text-lg">
@@ -53,11 +53,11 @@ export default function Home() {
               </div>
             </div>
             <Image
-              src="/img.webp"
+              src="/main.png"
               alt="AI Learning Illustration"
               width={600}
               height={400}
-              className="mx-auto aspect-video overflow-hidden rounded-xl object-cover"
+              className="mx-auto  overflow-hidden rounded-xl object-cover"
             />
           </div>
         </div>

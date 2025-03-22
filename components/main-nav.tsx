@@ -53,11 +53,11 @@ export function MainNav() {
         </nav>
 
         {/* Mobile Menu Button */}
-        <div className="md:hidden">
+        <div className="md:hidden ">
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
-                <Menu className="w-6 h-6" />
+                <Menu className="w-6 h-6 " />
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="p-4">
