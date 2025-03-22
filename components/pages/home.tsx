@@ -52,7 +52,7 @@ export default function Home() {
               </div>
             </div>
             <Image
-              src="/glassdoor.png"
+              src="/glassdoor.jpg"
               alt="AI Learning Illustration"
               width={600}
               height={400}
