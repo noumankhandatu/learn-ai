@@ -1,9 +1,12 @@
 import nodemailer from "nodemailer";
+const calendlyUrl = process.env.CALENDLY_URL;
 
 export async function sendEmail(toEmail: string, subject: string, message: string, eligible: boolean) {
   try {
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "mail.privateemail.com",
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
@@ -13,11 +16,11 @@ export async function sendEmail(toEmail: string, subject: string, message: strin
     // Add Calendly link if eligible
     const calendlyLink = eligible
       ? `<p style="font-size: 16px; color: #333;"><strong>Schedule your meeting here:</strong> 
-          <a href="https://calendly.com/noumankhan619-915/learnai-1" 
-             style="color: #0073e6; text-decoration: none; font-weight: bold;">
-            Book a Meeting
-          </a>
-        </p>`
+        <a href="${calendlyUrl}" 
+           style="color: #0073e6; text-decoration: none; font-weight: bold;">
+          Book a Meeting
+        </a>
+      </p>`
       : "";
 
     const emailBody = `
@@ -34,7 +37,7 @@ export async function sendEmail(toEmail: string, subject: string, message: strin
 
     // Send email
     const info = await transporter.sendMail({
-      from: `"LEARNAI" <${process.env.EMAIL_USER}>`,
+      from: `"LEARNAI Team" <${process.env.EMAIL_USER}>`,
       to: toEmail,
       subject,
       html: emailBody,

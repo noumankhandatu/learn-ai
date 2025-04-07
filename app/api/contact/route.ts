@@ -4,48 +4,37 @@ import nodemailer from "nodemailer";
 async function sendEmail(toEmail: string, subject: string, message: string) {
   try {
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "mail.privateemail.com",
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
     });
-
     const emailBody = `
-      <div style="font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f4f8fb; padding: 30px;">
+      <div style="font-family: Arial, sans-serif; background-color: #f4f8fb; padding: 30px;">
         <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
-          <!-- Header -->
           <div style="background: linear-gradient(90deg, #0073e6, #005bb5); padding: 20px; text-align: center;">
-            <h1 style="color: #ffffff; font-size: 28px; margin: 0; font-weight: 600;">New Contact Form Submission</h1>
+            <h1 style="color: #ffffff; font-size: 28px; margin: 0;">New Contact Form Submission</h1>
           </div>
-          <!-- Body -->
           <div style="padding: 30px;">
-            <p style="font-size: 18px; color: #333333; margin: 0 0 10px;">Hello 👋,</p>
-            <p style="font-size: 16px; color: #555555; line-height: 1.6; margin: 0 0 20px;">
-              You’ve received a new message from the LEARNAI contact form:
-            </p>
-            <div style="background: #f9fafb; border-left: 4px solid #f28c38; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-              <p style="margin: 0; font-size: 16px; color: #333333; line-height: 1.5;">${message.replace(/\n/g, "<br>")}</p>
+            <p style="font-size: 18px; color: #333;">Hello 👋,</p>
+            <p style="font-size: 16px; color: #555;">You’ve received a new message:</p>
+            <div style="background: #f9fafb; border-left: 4px solid #f28c38; padding: 15px; border-radius: 8px;">
+              <p style="margin: 0; font-size: 16px; color: #333;">${message.replace(/\n/g, "<br>")}</p>
             </div>
           </div>
-          <!-- Footer -->
           <div style="background: #f4f8fb; padding: 20px; text-align: center; border-top: 1px solid #e0e6ed;">
-            <p style="font-size: 14px; color: #666666; margin: 0 0 5px;">
-              Best regards,
-            </p>
-            <p style="font-size: 16px; color: #0073e6; font-weight: 600; margin: 0;">
-              LEARNAI Team
-            </p>
-            <p style="font-size: 12px; color: #999999; margin: 10px 0 0;">
-              <a href="https://yourwebsite.com" style="color: #f28c38; text-decoration: none;">Visit our website</a>
-            </p>
+            <p style="font-size: 14px; color: #666;">Best regards,</p>
+            <p style="font-size: 16px; color: #0073e6; font-weight: 600;">LEARNAI Team</p>
           </div>
         </div>
       </div>
     `;
 
     const info = await transporter.sendMail({
-      from: `"LEARNAI Contact" <${process.env.EMAIL_USER}>`,
+      from: `"LEARNAI Team" <${process.env.EMAIL_USER}>`,
       to: toEmail,
       subject,
       html: emailBody,
@@ -74,11 +63,10 @@ export async function POST(req: NextRequest) {
       Message: ${message}
     `;
 
-    const result = await sendEmail(
-      "noumankhan619.915@gmail.com", // Replace with your email
-      subject,
-      emailMessage
-    );
+    if (!process.env.RECEIVER_EMAIL) {
+      return NextResponse.json({ error: "Receiver email is not configured" }, { status: 500 });
+    }
+    const result = await sendEmail(process.env.RECEIVER_EMAIL, subject, emailMessage);
 
     if (result.success) {
       return NextResponse.json({ message: "Email sent successfully", messageId: result.messageId }, { status: 200 });

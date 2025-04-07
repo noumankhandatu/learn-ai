@@ -3,6 +3,49 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Brain, BookOpen, Users, Trophy } from "lucide-react";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "AI Coaching Program | LEARNAI.ONE - AI Programming Training",
+  description:
+    "Join our expert-led AI coaching program at LEARNAI.ONE. Get personalized mentorship, career support, and hands-on learning in AI, ML, and Deep Learning.",
+  keywords: [
+    "AI coaching",
+    "Machine Learning training",
+    "Deep Learning program",
+    "AI mentorship",
+    "Artificial Intelligence course",
+    "AI career guidance",
+  ],
+  alternates: {
+    canonical: "https://learnai.one/coaching",
+  },
+  openGraph: {
+    title: "AI Coaching Program | LEARNAI.ONE - AI Programming Training",
+    description:
+      "Master AI with our expert-led coaching program. Personalized mentorship, hands-on projects, and career guidance to boost your AI skills.",
+    url: "https://learnai.one/coaching",
+    siteName: "LEARNAI.ONE",
+    images: [
+      {
+        url: "https://learnai.one/LEARNAI.png",
+        width: 1200,
+        height: 630,
+        alt: "LEARNAI.ONE AI Coaching Program",
+      },
+    ],
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@learnaiai",
+    title: "AI Coaching Program | LEARNAI.ONE",
+    description: "Get expert-led AI coaching at LEARNAI.ONE. Personalized mentorship, career guidance, and hands-on AI projects.",
+    images: ["https://learnai.one/LEARNAI.png"],
+  },
+  robots: "index, follow",
+};
 
 export default function CoachingPage() {
   const features = [
