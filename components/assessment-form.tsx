@@ -1,380 +1,530 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useToast } from "@/components/ui/use-toast";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { InfoIcon } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 import axios from "axios";
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/use-toast";
 
-export default function AssessmentForm() {
-  const [apiResponse, setApiResponse] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [showGreen, setShowGreen] = useState(false);
+const formSchema = z.object({
+  firstName: z.string().min(1, { message: "First name is required" }),
+  lastName: z.string().min(1, { message: "Last name is required" }),
+  phoneNumber: z.string().min(1, { message: "Phone number is required" }),
+  emailAddress: z.string().email({ message: "Valid email is required" }),
+  employmentStatus: z.enum(["Yes", "No"], { required_error: "Please select an option" }),
+  occupation: z.string().min(1, { message: "Occupation is required" }),
+  aiBackground: z.enum(["Yes - AI", "Yes - Technical (but not AI)", "No - Neither AI nor technical background"], {
+    required_error: "Please select an option",
+  }),
+  aiKnowledge: z.enum(["I've only used tools like ChatGPT", "I'm currently building or experimenting with AI", "None or very little experience"], {
+    required_error: "Please select an option",
+  }),
+  priorTraining: z.string().min(1, { message: "This field is required" }),
+  biggestChallenge: z.string().min(1, { message: "This field is required" }),
+  holdingBack: z.string().min(1, { message: "This field is required" }),
+  desiredOutcome: z.string().min(1, { message: "This field is required" }),
+  financialSituation: z.enum(
+    [
+      "I have less than $1,000 across all my accounts",
+      "I have access to financial resources for this AI coaching program (over $1000 across all my accounts)",
+      "I have access to financial resources and would like to learn more about payment plan options (over $1000 across all my accounts)",
+    ],
+    { required_error: "Please select an option" }
+  ),
+  agreeToBeFocused: z.enum(["Yes, I agree and will be present, prepared, and in a quiet space at the scheduled time", "No"], {
+    required_error: "Please select an option",
+  }),
+});
+
+export default function ApplicationForm() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phoneNumber: "",
-    currentOccupation: "",
-    timeCommitment: "",
-    importance: "",
-    reasons: [] as string[],
-    investmentRange: "",
+  const [apiResponse, setApiResponse] = useState<{
+    success: boolean;
+    message: string;
+    eligible: boolean;
+    applicationId?: string;
+  } | null>(null);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      phoneNumber: "",
+      emailAddress: "",
+      occupation: "",
+      priorTraining: "",
+      biggestChallenge: "",
+      holdingBack: "",
+      desiredOutcome: "",
+    },
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    // Basic validation
-    if (!formData.firstName) newErrors.firstName = "First name is required";
-    if (!formData.lastName) newErrors.lastName = "Last name is required";
-    if (!formData.email) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email";
-    }
-    if (!formData.phoneNumber) newErrors.phoneNumber = "Phone number is required";
-    if (!formData.currentOccupation) newErrors.currentOccupation = "Current occupation is required";
-    if (!formData.timeCommitment) newErrors.timeCommitment = "Time commitment selection is required";
-    if (!formData.importance) newErrors.importance = "Importance rating is required";
-    if (formData.reasons.length === 0) newErrors.reasons = "Please select at least one reason";
-    if (!formData.investmentRange) newErrors.investmentRange = "Investment range selection is required";
-
-    // Check if "None" is selected along with other reasons
-    if (formData.reasons.includes("none") && formData.reasons.length > 1) {
-      newErrors.reasons = 'Cannot select "None" with other options';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-    // Clear error when field is modified
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
-  };
-
-  const handleRadioChange = (name: string, value: string) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
-  };
-
-  const handleCheckboxChange = (value: string, checked: boolean) => {
-    setFormData((prevData) => {
-      const newReasons = checked ? [...prevData.reasons, value] : prevData.reasons.filter((reason) => reason !== value);
-
-      // If selecting "none", clear other selections
-      if (value === "none" && checked) {
-        return { ...prevData, reasons: ["none"] };
-      }
-
-      // If selecting another option while "none" is selected, remove "none"
-      if (value !== "none" && checked && prevData.reasons.includes("none")) {
-        return { ...prevData, reasons: [value] };
-      }
-
-      return { ...prevData, reasons: newReasons };
-    });
-    if (errors.reasons) {
-      setErrors((prev) => ({ ...prev, reasons: "" }));
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Please fill in all required fields correctly.",
-      });
-      return;
-    }
-
-    setLoading(true); // Start loading
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsSubmitting(true);
+    setApiResponse(null); // Reset previous response
 
     try {
+      // Prepare the payload
+      const formData = {
+        personalInfo: {
+          firstName: values.firstName,
+          lastName: values.lastName,
+          phoneNumber: values.phoneNumber,
+          emailAddress: values.emailAddress,
+        },
+        professionalBackground: {
+          employmentStatus: values.employmentStatus,
+          occupation: values.occupation,
+        },
+        aiExperience: {
+          aiBackground: values.aiBackground,
+          aiKnowledge: values.aiKnowledge,
+          priorTraining: values.priorTraining,
+        },
+        goalsAndChallenges: {
+          biggestChallenge: values.biggestChallenge,
+          holdingBack: values.holdingBack,
+          desiredOutcome: values.desiredOutcome,
+        },
+        commitmentAssessment: {
+          financialSituation: values.financialSituation,
+        },
+        professionalEtiquette: {
+          agreeToBeFocused: values.agreeToBeFocused,
+        },
+        submittedAt: new Date().toISOString(),
+      };
+
+      // Send the data to the API
       const response = await axios.post("/api/eligibility", formData);
 
-      if (response.status === 200) {
-        setApiResponse(response.data.message);
-        setShowGreen(response.data.eligible);
-        toast({
-          title: "Success!",
-          description: response.data.message || "Your assessment has been submitted successfully.",
-        });
+      // Store the API response
+      setApiResponse(response.data);
 
-        setFormData({
-          firstName: "",
-          lastName: "",
-          email: "",
-          phoneNumber: "",
-          currentOccupation: "",
-          timeCommitment: "",
-          importance: "",
-          reasons: [],
-          investmentRange: "",
+      toast({
+        title: response.data.eligible ? "Application Approved!" : "Application Status",
+        description: "Please check below for details about your application.",
+        variant: "default",
+      });
+
+      // Don't reset the form so user can see what they submitted
+      // form.reset();
+    } catch (error) {
+      console.error("Error submitting form:", error);
+
+      if (axios.isAxiosError(error) && error.response) {
+        // Handle specific API error responses
+        toast({
+          title: "Submission failed",
+          description: error.response.data.message || "There was an error processing your application. Please try again.",
+          variant: "destructive",
         });
       } else {
-        throw new Error("Unexpected response from server");
+        // Handle generic errors
+        toast({
+          title: "Submission failed",
+          description: "There was an error connecting to our servers. Please try again later.",
+          variant: "destructive",
+        });
       }
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "There was a problem submitting your assessment. Please try again.",
-      });
     } finally {
-      setLoading(false); // Stop loading
+      setIsSubmitting(false);
     }
-  };
+  }
+
+  function onError(errors: any) {
+    console.log(errors);
+    toast({
+      title: "Error in form submission",
+      description: "Please check the form for errors and try again.",
+      variant: "destructive",
+    });
+  }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 p-3 shadow-lg ">
-      {/* Personal Information */}
-      <div style={{ height: 10 }} />
-      <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
-        <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">AI Readiness Assessment</h2>
-        <p className="max-w-[700px] text-gray-500 md:text-xl">Take our assessment to determine your eligibility for the program</p>
-      </div>{" "}
-      <div style={{ height: 10 }} />
-      <div className="grid gap-6 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="firstName">First Name</Label>
-          <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleChange} required />
-          {errors.firstName && <p className="text-sm text-red-500">{errors.firstName}</p>}
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="lastName">Last Name</Label>
-          <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleChange} required />
-          {errors.lastName && <p className="text-sm text-red-500">{errors.lastName}</p>}
-        </div>
+    <div className="space-y-6">
+      <div className="text-center">
+        <h1 className="text-3xl font-bold">
+          Application - <span style={{ color: "#1e90ff" }}>LEARN</span>
+          <span style={{ color: "#ff7f50" }}>AI</span> Coaching Accelerator{" "}
+        </h1>
       </div>
-      <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
-        <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required />
-        {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="phoneNumber">Phone Number</Label>
-        <Input id="phoneNumber" name="phoneNumber" type="tel" value={formData.phoneNumber} onChange={handleChange} required />
-        {errors.phoneNumber && <p className="text-sm text-red-500">{errors.phoneNumber}</p>}
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="currentOccupation">Current Occupation</Label>
-        <Input id="currentOccupation" name="currentOccupation" value={formData.currentOccupation} onChange={handleChange} required />
-        {errors.currentOccupation && <p className="text-sm text-red-500">{errors.currentOccupation}</p>}
-      </div>
-      {/* Weekly Time Commitment */}
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <Label>Weekly Time Commitment (Select One)</Label>
-          <p className="text-sm text-muted-foreground">
-            How many hours per week can you devote to AI learning? We recommend at least five for meaningful progress.
-          </p>
-        </div>
-        <RadioGroup value={formData.timeCommitment} onValueChange={(value) => handleRadioChange("timeCommitment", value)} className="space-y-2">
-          <div className="flex items-center space-x-2 shadow-sm p-4  border-red-500 border-[1px] rounded-lg">
-            <RadioGroupItem value="0" id="hours-0" />
-            <Label htmlFor="hours-0" className="font-normal">
-              <span className="block">0 hours</span>
-              <span className="block text-sm text-red-500">I do not have time</span>
-            </Label>
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit, onError)} className="space-y-8">
+          {/* Personal Information Section */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold text-blue-500">Personal Information</h2>
+            <hr />
+            <FormField
+              control={form.control}
+              name="firstName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    1. First Name <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input placeholder="" {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="lastName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    2. Last Name <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input placeholder="" {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="phoneNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    3. Phone Number <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input placeholder="" {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="emailAddress"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    4. Email Address <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input placeholder="" {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
           </div>
-          <div className="flex items-center space-x-2 shadow-sm p-4  border-yellow-500 border-[1px] rounded-lg">
-            <RadioGroupItem value="1" id="hours-1" />
-            <Label htmlFor="hours-1" className="font-normal">
-              <span className="block">1 hour</span>
-              <span className="block text-sm text-yellow-500">Time investment insufficient</span>
-            </Label>
+
+          {/* Professional Background Section */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold text-blue-500">Professional Background</h2>
+            <hr />
+            <FormField
+              control={form.control}
+              name="employmentStatus"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel>
+                    5. Are you employed full-time? <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col space-y-1">
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="Yes" />
+                        </FormControl>
+                        <FormLabel className="font-normal">Yes</FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="No" />
+                        </FormControl>
+                        <FormLabel className="font-normal">No</FormLabel>
+                      </FormItem>
+                    </RadioGroup>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="occupation"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    6. Occupation <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input placeholder="" {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
           </div>
-          <div className="flex items-center space-x-2 shadow-sm p-4  border-green-500 border-[1px] rounded-lg">
-            <RadioGroupItem value="5" id="hours-5" />
-            <Label htmlFor="hours-5" className="font-normal">
-              <span className="block">5 hours</span>
-              <span className="block text-sm text-green-500">I am ready to invest this time weekly</span>
-            </Label>
-            <span className="ml-2 text-sm text-muted-foreground">(Recommended)</span>
+
+          {/* AI Experience Section */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold text-blue-500">AI Experience</h2>
+            <hr />
+
+            <FormField
+              control={form.control}
+              name="aiBackground"
+              render={({ field }) => (
+                <FormItem className="space-y-4">
+                  <FormLabel>
+                    7. Do you have any AI or technical background? <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col space-y-2">
+                      <FormItem className="flex items-center space-x-3 space-y-2">
+                        <FormControl>
+                          <RadioGroupItem value="Yes - AI" />
+                        </FormControl>
+                        <FormLabel className="font-normal">Yes - AI</FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-3 space-y-2">
+                        <FormControl>
+                          <RadioGroupItem value="Yes - Technical (but not AI)" />
+                        </FormControl>
+                        <FormLabel className="font-normal">Yes - Technical (but not AI)</FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-3 space-y-2">
+                        <FormControl>
+                          <RadioGroupItem value="No - Neither AI nor technical background" />
+                        </FormControl>
+                        <FormLabel className="font-normal">No - Neither AI nor technical background</FormLabel>
+                      </FormItem>
+                    </RadioGroup>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <br />
+            <FormField
+              control={form.control}
+              name="aiKnowledge"
+              render={({ field }) => (
+                <FormItem className="space-y-4">
+                  <FormLabel>
+                    8. What is your current level of AI knowledge? <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col space-y-2">
+                      <FormItem className="flex items-center space-x-3 space-y-2">
+                        <FormControl>
+                          <RadioGroupItem value="I've only used tools like ChatGPT" />
+                        </FormControl>
+                        <FormLabel className="font-normal">I've only used tools like ChatGPT</FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-3 space-y-2">
+                        <FormControl>
+                          <RadioGroupItem value="I'm currently building or experimenting with AI" />
+                        </FormControl>
+                        <FormLabel className="font-normal">I'm currently building or experimenting with AI</FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-3 space-y-2">
+                        <FormControl>
+                          <RadioGroupItem value="None or very little experience" />
+                        </FormControl>
+                        <FormLabel className="font-normal">None or very little experience</FormLabel>
+                      </FormItem>
+                    </RadioGroup>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <br />
+
+            <FormField
+              control={form.control}
+              name="priorTraining"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    9. Have you enrolled in prior AI training or coaching programs? If so, please briefly describe your experience (positive or
+                    negative): <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="" className="min-h-[100px]" {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
           </div>
-        </RadioGroup>
-        {errors.timeCommitment && <p className="text-sm text-red-500">{errors.timeCommitment}</p>}
-      </div>
-      {/* Importance Rating */}
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <Label>Importance of Enrolling in the LEARN AI Coaching Program</Label>
-          <p className="text-sm text-muted-foreground">Rate from 1 to 5 (Highest)</p>
-        </div>
-        <RadioGroup value={formData.importance} onValueChange={(value) => handleRadioChange("importance", value)} className="flex flex-wrap gap-4">
-          {[1, 2, 3, 4, 5].map((value) => (
-            <div key={value} className="flex items-center">
-              <RadioGroupItem value={value.toString()} id={`importance-${value}`} />
-              <Label htmlFor={`importance-${value}`} className="ml-2 font-normal">
-                {value} {value === 5 && "(Highest)"}
-              </Label>
+
+          {/* Goals & Challenges Section */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold text-blue-500">Goals & Challenges</h2>
+            <hr />
+            <FormField
+              control={form.control}
+              name="biggestChallenge"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    10. What's your biggest challenge right now with Learning AI? <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="" className="min-h-[100px]" {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="holdingBack"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    11. What's holding you back from using AI in your work or business? <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="" className="min-h-[100px]" {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="desiredOutcome"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    12. Desired Outcome: What would success look like for you after completing this program? <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="" className="min-h-[100px]" {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Commitment Assessment Section */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold text-blue-500">Commitment Assessment</h2>
+            <hr />
+            <FormField
+              control={form.control}
+              name="financialSituation"
+              render={({ field }) => (
+                <FormItem className="space-y-4">
+                  <FormLabel>
+                    13. Our AI coaching program involves a time and financial commitment. Which of the following best describes your current financial
+                    situation? <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <p className="text-orange-500 italic text-md font-semibold">
+                    Please answer truthfully so we can provide the most accurate decision for your application.
+                  </p>
+                  <FormControl>
+                    <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col space-y-4">
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="I have less than $1,000 across all my accounts" />
+                        </FormControl>
+                        <FormLabel className="font-normal">I have less than $1,000 across all my accounts</FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="I have access to financial resources for this AI coaching program (over $1000 across all my accounts)" />
+                        </FormControl>
+                        <FormLabel className="font-normal">
+                          I have access to financial resources for this AI coaching program (over $1000 across all my accounts)
+                        </FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="I have access to financial resources and would like to learn more about payment plan options (over $1000 across all my accounts)" />
+                        </FormControl>
+                        <FormLabel className="font-normal">
+                          I have access to financial resources and would like to learn more about payment plan options (over $1000 across all my
+                          accounts)
+                        </FormLabel>
+                      </FormItem>
+                    </RadioGroup>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Professional Etiquette Section */}
+          <div className="space-y-6">
+            <h2 className="text-xl font-bold text-blue-500">Professional Etiquette</h2>
+            <hr />
+            <FormField
+              control={form.control}
+              name="agreeToBeFocused"
+              render={({ field }) => (
+                <FormItem className="space-y-5">
+                  <FormLabel>
+                    14. Do you agree to be fully present, focused, and in a quiet, distraction-free environment during your scheduled call?{" "}
+                    <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col space-y-1">
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="Yes, I agree and will be present, prepared, and in a quiet space at the scheduled time" />
+                        </FormControl>
+                        <FormLabel className="font-normal">
+                          Yes, I agree and will be present, prepared, and in a quiet space at the scheduled time
+                        </FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="No" />
+                        </FormControl>
+                        <FormLabel className="font-normal">No</FormLabel>
+                      </FormItem>
+                    </RadioGroup>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <div className="bg-gray-100 p-4 rounded-md">
+              <i className="text-orange-500 font-[700]">
+                <span className="font-bold">ℹ️</span> Out of respect for everyone's time, please ensure you are not driving or in a noisy or
+                distracted environment. Calls will be disconnected if these conditions aren't met. We are building professionals who value excellence,
+                and this standard allows us to best support you and ensure a productive, high-impact experience for both sides.
+              </i>
             </div>
-          ))}
-        </RadioGroup>
-        {errors.importance && <p className="text-sm text-red-500">{errors.importance}</p>}
-      </div>
-      {/* Reasons for Enrolling */}
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <Label>Reason for Enrolling in Our LEARN AI Coaching Program</Label>
-          <p className="text-sm text-muted-foreground">Select all that apply</p>
-        </div>
-        <div className="space-y-2">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="reason-none"
-              onCheckedChange={(checked) => handleCheckboxChange("none", checked as boolean)}
-              checked={formData.reasons.includes("none")}
-            />
-            <Label htmlFor="reason-none" className="font-normal">
-              <span>None</span>
-              <span className="ml-1 text-red-500">(Will not be accepted)</span>
-            </Label>
           </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="reason-career-change"
-              onCheckedChange={(checked) => handleCheckboxChange("career-change", checked as boolean)}
-              checked={formData.reasons.includes("career-change")}
-            />
-            <Label htmlFor="reason-career-change" className="font-normal">
-              Change Career
-            </Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="reason-career-advancement"
-              onCheckedChange={(checked) => handleCheckboxChange("career-advancement", checked as boolean)}
-              checked={formData.reasons.includes("career-advancement")}
-            />
-            <Label htmlFor="reason-career-advancement" className="font-normal">
-              Career Advancement
-            </Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="reason-entrepreneurship"
-              onCheckedChange={(checked) => handleCheckboxChange("entrepreneurship", checked as boolean)}
-              checked={formData.reasons.includes("entrepreneurship")}
-            />
-            <Label htmlFor="reason-entrepreneurship" className="font-normal">
-              Explore AI Entrepreneurship (e.g., learn how to grow/build an AI business)
-            </Label>
-          </div>
-        </div>
-        {errors.reasons && <p className="text-sm text-red-500">{errors.reasons}</p>}
-      </div>
-      {/* Investment Range */}
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <Label>Investment Range</Label>
-          <p className="text-sm text-muted-foreground">
-            Please select your financial commitment level so we can tailor your enrollment for maximum impact.
-          </p>
-        </div>
-        <RadioGroup value={formData.investmentRange} onValueChange={(value) => handleRadioChange("investmentRange", value)} className="space-y-4">
-          <div className="flex items-center space-x-2 border-red-500 border-[1px] p-3 rounded-lg">
-            <RadioGroupItem value="0-3500" id="range-1" className="mt-1" />
-            <Label htmlFor="range-1" className="font-normal">
-              <span className="block font-medium">$0 - $3,500</span>
-              <span className="block mt-2 text-sm text-red-500">I do not value investing in myself to LEARN AI</span>
-            </Label>
-            <span className="ml-2 text-sm text-muted-foreground text-right">(Below Investment Threshold)</span>
-          </div>
-          <div className="flex items-center space-x-2 border-blue-500 border-[1px] p-3 rounded-lg">
-            <RadioGroupItem value="4000-5000" id="range-2" className="mt-1" />
-            <Label htmlFor="range-2" className="font-normal">
-              <span className="block font-medium">$4,000 - $5,000</span>
-              <span className="block mt-2 text-sm text-blue-500">
-                I am ready to invest in myself to LEARN AI from a Valued AI Coach with real life experiences and over 10+ years of Experience
-              </span>
-            </Label>
-          </div>
-          <div className="flex items-center space-x-2 shadow-sm p-4  border-green-500 border-[1px] rounded-lg">
-            <RadioGroupItem value="5500-6500" id="range-3" className="mt-1" />
-            <Label htmlFor="range-3" className="font-normal">
-              <span className="block font-medium">$5,500 - $6,500</span>
-              <span className="block text-sm mt-2 text-green-500">
-                I am open to invest now and in future AI Coaching, mentorship, community, how to apply AI in my career, future career & use AI to
-                generate passive income
-              </span>
-            </Label>
-            <span className="ml-2 text-sm text-muted-foreground">(Most Recommended)</span>
-          </div>
-        </RadioGroup>
-        {errors.investmentRange && <p className="text-sm text-red-500">{errors.investmentRange}</p>}
-      </div>
-      {/* Warning Note */}
-      <Alert className="bg-muted">
-        <InfoIcon className="h-4 w-4" />
-        <AlertDescription>
-          Note: We value serious learners who are genuinely committed. Spammers or dishonest submissions will be blocked from our LEARN AI coaching
-          program. We respect the time and dedication of those ready to transform their careers.
-        </AlertDescription>
-      </Alert>
-      {apiResponse && (
-        <div
-          className={`mt-4 p-4 ${
-            showGreen ? "bg-green-100 text-green-700 border-green-300" : "bg-red-100 text-red-700 border-red-300"
-          }  rounded-lg border shadow-md`}
-        >
-          {apiResponse
-            .split(/(?<=[.!:?])\s+/) // Split sentences properly
-            .map((sentence, index) => (
-              <p key={index} className="mb-2 leading-relaxed">
-                {sentence.trim()}
-              </p>
-            ))}
-        </div>
-      )}
-      {apiResponse && (
-        <Alert
-          className={`mt-4 p-4 ${
-            showGreen ? "bg-green-100 text-green-700 border-green-300" : "bg-red-100 text-red-700 border-red-300"
-          }  rounded-lg border shadow-md`}
-        >
-          <AlertDescription>
-            {showGreen
-              ? " You are eligible for the program. Please check your email for the next steps. 🎉"
-              : "Sorry, you are not eligible for the program. Please check your email for further details."}
-          </AlertDescription>
-        </Alert>
-      )}
-      <Button type="submit" disabled={loading} className="w-full">
-        {loading ? (
-          <div className="flex items-center space-x-2">
-            <span className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></span>
-            <span>Submitting...</span>
-          </div>
-        ) : (
-          "Submit"
-        )}
-      </Button>
-    </form>
+
+          {apiResponse && (
+            <div className={`mt-6 p-6 rounded-lg border ${apiResponse.eligible ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"}`}>
+              <h3 className={`text-lg font-semibold mb-2 ${apiResponse.eligible ? "text-green-700" : "text-red-700"}`}>
+                {apiResponse.eligible ? "Application Approved!" : "Application Status Update"}
+              </h3>
+              <p className="whitespace-pre-wrap text-gray-700">{apiResponse.message}</p>
+              {apiResponse.applicationId && (
+                <p className="mt-4 text-sm font-medium">
+                  Application ID: <span className="font-bold">{apiResponse.applicationId}</span>
+                </p>
+              )}
+            </div>
+          )}
+
+          <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3" disabled={isSubmitting}>
+            {isSubmitting ? "Submitting..." : "Submit Application"}
+          </Button>
+        </form>
+      </Form>
+    </div>
   );
 }

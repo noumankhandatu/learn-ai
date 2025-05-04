@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { OpenAI } from "openai";
 import { sendEmail } from "./emailService";
 
@@ -13,27 +13,50 @@ const openai = new OpenAI({
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { firstName, lastName, email, phoneNumber, currentOccupation, timeCommitment, reasons, investmentRange } = body;
+
+    // Extract data from the new structured form payload
+    const { personalInfo, professionalBackground, aiExperience, goalsAndChallenges, commitmentAssessment, professionalEtiquette, submittedAt } = body;
+
+    // Map financial situation to investment range
+    let investmentRange = "Under $1,000";
+    if (commitmentAssessment.financialSituation.includes("over $1000")) {
+      investmentRange = "Over $1,000";
+    }
+
+    // Map agreement to time commitment
+    const timeCommitment = professionalEtiquette.agreeToBeFocused.startsWith("Yes") ? "Committed" : "Not committed";
+
+    // Extract reasons from goals and challenges
+    const reasons = [goalsAndChallenges.biggestChallenge, goalsAndChallenges.holdingBack, goalsAndChallenges.desiredOutcome].filter(
+      (reason) => reason && reason.trim() !== ""
+    );
 
     const prompt = `
-    You are an AI admissions assistant for LEARNAI, evaluating applications for an AI training program.
+    You are an AI admissions assistant for LEARNAI, evaluating applications for an AI coaching accelerator program.
     Your task is to assess eligibility based on strict criteria and return **ONLY JSON output**.
     
     ---
     **Applicant Details:**
-    - Full Name: ${firstName} ${lastName}
-    - Email: ${email}
-    - Phone: ${phoneNumber}
-    - Occupation: ${currentOccupation}
-    - Weekly Commitment: ${timeCommitment} hours
-    - Reasons: ${reasons.join(", ")}
-    - Investment Range: ${investmentRange}
+    - Full Name: ${personalInfo.firstName} ${personalInfo.lastName}
+    - Email: ${personalInfo.emailAddress}
+    - Phone: ${personalInfo.phoneNumber}
+    - Employment Status: ${professionalBackground.employmentStatus}
+    - Occupation: ${professionalBackground.occupation}
+    - AI Background: ${aiExperience.aiBackground}
+    - AI Knowledge Level: ${aiExperience.aiKnowledge}
+    - Prior AI Training: ${aiExperience.priorTraining}
+    - Biggest AI Challenge: ${goalsAndChallenges.biggestChallenge}
+    - What's Holding Them Back: ${goalsAndChallenges.holdingBack}
+    - Desired Outcome: ${goalsAndChallenges.desiredOutcome}
+    - Financial Situation: ${commitmentAssessment.financialSituation}
+    - Professional Commitment: ${professionalEtiquette.agreeToBeFocused}
+    - Application Date: ${submittedAt}
     
     ---
     **Eligibility Criteria:**
-    1️⃣ Minimum **1 hour per week** commitment required.
-    2️⃣ A valid **reason for enrolling** is required (not 'None').
-    3️⃣ Must be **willing to invest at least $4,000**.
+    1️⃣ Must agree to be fully present and focused during scheduled calls.
+    2️⃣ Must have valid reasons for enrolling in the program (check their challenges and desired outcomes).
+    3️⃣ Must have access to financial resources (over $1,000 across accounts).
     
     ---
     **STRICT JSON Response Format (NO EXTRA TEXT OUTSIDE JSON)**:
@@ -51,6 +74,7 @@ export async function POST(req: NextRequest) {
       - Congratulate the applicant and emphasize why they qualified.
       - Clearly state that they should check their email for an **onboarding meeting link**.
       - Provide a **motivational and engaging** response that encourages participation.
+      - Reference their specific AI challenges and goals in your response.
     
     - ❌ If not eligible:
       - Politely reject them and explain the reasons.
@@ -69,7 +93,7 @@ export async function POST(req: NextRequest) {
     const response = await openai.chat.completions.create({
       model: "gpt-4",
       messages: [{ role: "system", content: prompt }],
-      max_tokens: 300,
+      max_tokens: 800, // Increased to accommodate longer responses
     });
 
     // Validate response structure
@@ -78,7 +102,6 @@ export async function POST(req: NextRequest) {
     }
 
     const rawResponse = response.choices[0].message.content.trim();
-    console.log("🛠️ Raw AI Response:", rawResponse);
 
     let aiResponse;
     try {
@@ -93,20 +116,29 @@ export async function POST(req: NextRequest) {
         throw new Error("Incomplete JSON response from AI.");
       }
     } catch (parseError) {
-      console.error("🚨 JSON Parsing Error:", parseError, "Raw content:", rawResponse);
+      console.log("🚨 JSON Parsing Error:", parseError, "Raw content:", rawResponse);
       throw new Error("Failed to parse AI response. Check AI output format.");
     }
 
     // Send email
-    await sendEmail(email, aiResponse.subject, aiResponse.message, aiResponse.eligible);
+    await sendEmail(personalInfo.emailAddress, aiResponse.subject, aiResponse.eligible);
+    // await sendEmail(personalInfo.emailAddress, aiResponse.subject, aiResponse.message, aiResponse.eligible);
 
+    // Return response with application ID
     return NextResponse.json({
       success: true,
       message: aiResponse.message || "No response generated.",
       eligible: aiResponse.eligible ?? false,
+      applicationId: `APP-${Date.now()}`,
     });
   } catch (error) {
-    console.error("❌ Full Error Details:", error);
-    return NextResponse.json({ success: false, error: error instanceof Error ? error.message : "Failed to process request." }, { status: 500 });
+    console.log("❌ Full Error Details:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to process request.",
+      },
+      { status: 500 }
+    );
   }
 }

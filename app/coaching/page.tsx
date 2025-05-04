@@ -1,9 +1,9 @@
-import AssessmentForm from "@/components/assessment-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Brain, BookOpen, Users, Trophy } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
+import ApplicationForm from "@/components/assessment-form";
 
 export const metadata: Metadata = {
   title: "AI Coaching Program | LEARNAI.ONE - AI Programming Training",
@@ -86,7 +86,7 @@ export default function CoachingPage() {
             <div className="space-x-4">
               <Link href="#assessment">
                 <Button variant="secondary" size="lg">
-                  Enroll Now
+                  Apply Now
                 </Button>
               </Link>
             </div>
@@ -94,9 +94,9 @@ export default function CoachingPage() {
         </div>
       </section>
       {/* Assessment Form */}
-      <section id="assessment" className="w-full py-12 md:py-24 lg:py-32 bg-white">
-        <div className="container px-4 md:px-6">
-          <AssessmentForm />
+      <section id="assessment" className="w-full py-12 md:py-24 lg:py-32 bg-white flex justify-center items-center">
+        <div className="container max-w-4xl px-4 md:px-6">
+          <ApplicationForm />
         </div>
       </section>
       {/* Features Section */}
