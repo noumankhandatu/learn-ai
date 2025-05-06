@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Send email
-    await sendEmail(personalInfo.emailAddress, aiResponse.subject, aiResponse.eligible);
+    await sendEmail(personalInfo.emailAddress, personalInfo.firstName, personalInfo.lastName, personalInfo.phoneNumber, aiResponse.eligible);
     // await sendEmail(personalInfo.emailAddress, aiResponse.subject, aiResponse.message, aiResponse.eligible);
 
     // Return response with application ID

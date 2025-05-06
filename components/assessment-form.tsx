@@ -148,6 +148,7 @@ export default function ApplicationForm() {
       variant: "destructive",
     });
   }
+  const messageWithBreaks: any = apiResponse?.message.replace(/(?<=\.)(?=\s[A-Z])/g, "\n\n");
 
   return (
     <div className="space-y-6">
@@ -511,7 +512,11 @@ export default function ApplicationForm() {
               <h3 className={`text-lg font-semibold mb-2 ${apiResponse.eligible ? "text-green-700" : "text-red-700"}`}>
                 {apiResponse.eligible ? "Application Approved!" : "Application Status Update"}
               </h3>
-              <p className="whitespace-pre-wrap text-gray-700">{apiResponse.message}</p>
+              {messageWithBreaks.split("\n\n").map((para: any, index: any) => (
+                <p key={index} className="mb-4 text-gray-700">
+                  {para}
+                </p>
+              ))}
               {apiResponse.applicationId && (
                 <p className="mt-4 text-sm font-medium">
                   Application ID: <span className="font-bold">{apiResponse.applicationId}</span>
