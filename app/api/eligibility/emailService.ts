@@ -3,7 +3,7 @@ import nodemailer from "nodemailer";
 const calendlyUrl = process.env.CALENDLY_URL;
 const receiverEmail = process.env.RECEIVER_EMAIL;
 
-export async function sendEmail(toEmail: string, firstName: string, lastName: string, phoneNumber: string, eligible: boolean) {
+export async function sendEmail(toEmail: string, firstName: string, lastName: string, phoneNumber: string, eligible: boolean, body: any) {
   try {
     const transporter = nodemailer.createTransport({
       host: "mail.privateemail.com",
@@ -24,6 +24,22 @@ export async function sendEmail(toEmail: string, firstName: string, lastName: st
         <p><strong>Phone Number:</strong> ${phoneNumber}</p>
         <p><strong>Email Address:</strong> ${toEmail}</p>
       </div>
+    `;
+
+    const applicantResponsesHTML = `
+      <h3>Applicant Responses:</h3>
+      <ul>
+        <li><strong>Employment Status:</strong> ${body.professionalBackground.employmentStatus}</li>
+        <li><strong>Occupation:</strong> ${body.professionalBackground.occupation}</li>
+        <li><strong>AI Background:</strong> ${body.aiExperience.aiBackground}</li>
+        <li><strong>AI Knowledge:</strong> ${body.aiExperience.aiKnowledge}</li>
+        <li><strong>Prior Training:</strong> ${body.aiExperience.priorTraining}</li>
+        <li><strong>Biggest Challenge:</strong> ${body.goalsAndChallenges.biggestChallenge}</li>
+        <li><strong>What’s Holding You Back:</strong> ${body.goalsAndChallenges.holdingBack}</li>
+        <li><strong>Desired Outcome:</strong> ${body.goalsAndChallenges.desiredOutcome}</li>
+        <li><strong>Financial Situation:</strong> ${body.commitmentAssessment.financialSituation}</li>
+        <li><strong>Commitment:</strong> ${body.professionalEtiquette.agreeToBeFocused}</li>
+      </ul>
     `;
 
     if (eligible) {
@@ -53,7 +69,7 @@ export async function sendEmail(toEmail: string, firstName: string, lastName: st
           </div>
         </div>`;
 
-      // Send second email to receiver with applicant details
+      // Send second email to receiver (admin) with applicant details
       await transporter.sendMail({
         from: `"LEARNAI Team" <${process.env.EMAIL_USER}>`,
         to: receiverEmail,
@@ -62,6 +78,7 @@ export async function sendEmail(toEmail: string, firstName: string, lastName: st
           <div style="font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; background-color: #f4f8fb;">
             <h3>New Qualified Applicant Details</h3>
             ${userDetailsHTML}
+            ${applicantResponsesHTML}
           </div>
         `,
       });
@@ -82,6 +99,20 @@ export async function sendEmail(toEmail: string, firstName: string, lastName: st
             <p>Chinedu Ekukinam<br><strong>Founder & AI Coach</strong><br>info@learnai.one<br>https://learnai.one<br>(785) 226-2424</p>
           </div>
         </div>`;
+
+      // Send second email to receiver (admin) with applicant details
+      await transporter.sendMail({
+        from: `"LEARNAI Team" <${process.env.EMAIL_USER}>`,
+        to: receiverEmail,
+        subject: `New Non-Qualified Applicant: ${firstName} ${lastName}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; background-color: #f4f8fb;">
+            <h3>New Non-Qualified Applicant Details</h3>
+            ${userDetailsHTML}
+            ${applicantResponsesHTML}
+          </div>
+        `,
+      });
     }
 
     const info = await transporter.sendMail({
