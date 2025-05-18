@@ -4,8 +4,8 @@ import Home from "@/components/pages/home";
 
 export const metadata: Metadata = {
   title: {
-    template: "LEARNAI.ONE | AI Programming Training",
-    default: "LEARNAI | AI Programming Training",
+    template: "LEARNAI.ONE | LEARN AI - (No Coding Required)",
+    default: "LEARNAI | LEARN AI - (No Coding Required)",
   },
   description: "Explore AI Solutions and Learning Resources at LEARNAI.ONE. Empower Your Skills with Artificial Intelligence.",
   keywords: ["AI programming", "Machine Learning", "Deep Learning", "AI training", "Artificial Intelligence"],
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   },
   robots: "index, follow",
   openGraph: {
-    title: "LEARNAI.ONE | AI Programming Training",
+    title: "LEARNAI.ONE | LEARN AI - (No Coding Required)",
     description: "Explore AI Solutions and Learning Resources at LEARNAI.ONE. Empower Your Skills with Artificial Intelligence.",
     url: "https://learnai.one/",
     siteName: "LEARNAI.ONE",
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     site: "@learnaiai",
-    title: "LEARNAI.ONE | AI Programming Training",
+    title: "LEARNAI.ONE | LEARN AI - (No Coding Required)",
     description: "Explore AI Solutions and Learning Resources at LEARNAI.ONE. Empower Your Skills with Artificial Intelligence.",
     images: ["https://learnai.one/LEARNAI.png"],
   },

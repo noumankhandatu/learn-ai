@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy - LEARNAI.ONE | AI Learning Guide",
+  title: "LEARNAI.ONE | LEARN AI - (No Coding Required)",
   description: "Find answers to common questions about AI training, machine learning courses, and expert-led coaching at LEARNAI.ONE.",
   alternates: {
     canonical: "https://learnai.one/privacypolicy",
   },
   openGraph: {
-    title: "Privacy Policy - LEARNAI.ONE | AI Learning Guide",
+    title: "LEARNAI.ONE | LEARN AI - (No Coding Required)",
     description: "Get all your AI learning questions answered. Explore AI training, machine learning courses, and coaching programs.",
     url: "https://learnai.one/LEARNAI.png",
     siteName: "LEARNAI.ONE",
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     site: "@learnaiai",
-    title: "Privacy Policy - LEARNAI.ONE | AI Learning Guide",
+    title: "LEARNAI.ONE | LEARN AI - (No Coding Required)",
     description: "Answers to your AI training and machine learning questions at LEARNAI.ONE.",
     images: ["https://learnai.one/LEARNAI.png"],
   },
